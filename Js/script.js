@@ -24,32 +24,39 @@ function salvarDados() {
 // ADICIONAR APOSTA
 // =====================
 function initForm() {
-  form = document.getElementById("formAposta");
+  const form = document.getElementById("formAposta");
 
-  if (!form) return;
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+      // 🔒 BLOQUEIO PRO (limite grátis)
+      if (!usuarioPro && apostas.length >= 3) {
+        alert("🔒 Limite grátis atingido (3 apostas). Ative o PRO.");
+        irParaPagamento();
+        return;
+      }
 
-    const valor = parseFloat(document.getElementById("valor").value);
-    const odd = parseFloat(document.getElementById("odd").value);
-    const resultado = document.getElementById("resultado").value;
+      const valor = parseFloat(document.getElementById("valor").value);
+      const odd = parseFloat(document.getElementById("odd").value);
+      const resultado = document.getElementById("resultado").value;
 
-    if (isNaN(valor) || isNaN(odd) || valor <= 0 || odd <= 0) {
-      alert("Preencha os dados corretamente");
-      return;
-    }
+      if (isNaN(valor) || isNaN(odd) || valor <= 0 || odd <= 0) {
+        alert("Preencha os dados corretamente");
+        return;
+      }
 
-    const lucro = resultado === "win"
-      ? valor * (odd - 1)
-      : -valor;
+      const lucro = resultado === "win"
+        ? valor * (odd - 1)
+        : -valor;
 
-    apostas.push({ valor, odd, resultado, lucro });
+      apostas.push({ valor, odd, resultado, lucro });
 
-    salvarDados();
-    atualizarTudo();
-    form.reset();
-  });
+      salvarDados();
+      atualizarTudo();
+      form.reset();
+    });
+  }
 }
 
 // =====================
