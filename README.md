@@ -13,9 +13,6 @@ Sistema web para controle de banca e análise de apostas esportivas.
 - CSS
 - JavaScript
 
-## 📸 Preview
-(Coloque imagem aqui)
-
 ## 🔗 Acesso
 https://lnkd.in/dRrTMZK2
 
