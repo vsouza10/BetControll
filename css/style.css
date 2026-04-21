@@ -215,3 +215,39 @@ tbody tr:hover {
   font-size: 14px;
   opacity: 0.8;
 }
+.btn-pro {
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+body {
+  margin: 0;
+  font-family: Arial;
+}
+
+.layout {
+  display: flex;
+  flex-direction: row;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .main {
+    width: 100%;
+  }
+
+  table {
+    font-size: 12px;
+  }
+}

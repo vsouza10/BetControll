@@ -1,4 +1,9 @@
 // =====================
+// STATUS PRO
+// =====================
+let usuarioPro = localStorage.getItem("pro") === "true";
+
+// =====================
 // DADOS
 // =====================
 let apostas = JSON.parse(localStorage.getItem("apostas")) || [];
@@ -6,10 +11,7 @@ let apostas = JSON.parse(localStorage.getItem("apostas")) || [];
 // =====================
 // ELEMENTOS
 // =====================
-const form = document.getElementById("formAposta");
-const saldoEl = document.getElementById("saldo");
-const roiEl = document.getElementById("roi");
-const winrateEl = document.getElementById("winrate");
+let form, saldoEl, roiEl, winrateEl;
 
 // =====================
 // SALVAR
@@ -21,7 +23,11 @@ function salvarDados() {
 // =====================
 // ADICIONAR APOSTA
 // =====================
-if (form) {
+function initForm() {
+  form = document.getElementById("formAposta");
+
+  if (!form) return;
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -62,17 +68,16 @@ function atualizarTabela() {
   const tabela = document.getElementById("tabelaApostas");
   if (!tabela) return;
 
-  const filtroEl = document.getElementById("filtroResultado");
-  const filtro = filtroEl ? filtroEl.value : "all";
+  const filtro = document.getElementById("filtroResultado")?.value || "all";
 
   tabela.innerHTML = "";
 
   apostas
     .filter(a => filtro === "all" || a.resultado === filtro)
     .forEach((a, index) => {
-      const linha = document.createElement("tr");
+      const tr = document.createElement("tr");
 
-      linha.innerHTML = `
+      tr.innerHTML = `
         <td>${index + 1}</td>
         <td>R$ ${a.valor.toFixed(2)}</td>
         <td>${a.odd}</td>
@@ -81,11 +86,11 @@ function atualizarTabela() {
           R$ ${a.lucro.toFixed(2)}
         </td>
         <td>
-          <button class="btn-delete" onclick="removerAposta(${index})">X</button>
+          <button onclick="removerAposta(${index})">X</button>
         </td>
       `;
 
-      tabela.appendChild(linha);
+      tabela.appendChild(tr);
     });
 }
 
@@ -93,6 +98,10 @@ function atualizarTabela() {
 // MÉTRICAS
 // =====================
 function atualizarMetricas() {
+  saldoEl = document.getElementById("saldo");
+  roiEl = document.getElementById("roi");
+  winrateEl = document.getElementById("winrate");
+
   let saldo = 0;
   let investido = 0;
   let wins = 0;
@@ -149,8 +158,17 @@ function atualizarGrafico() {
 // =====================
 // SCORE
 // =====================
-function calcularScore() {
-  if (apostas.length < 5) return { score: 0, nivel: "Iniciante" };
+function atualizarScore() {
+  const elScore = document.getElementById("score");
+  const elNivel = document.getElementById("nivel");
+
+  if (!elScore || !elNivel) return;
+
+  if (apostas.length < 5) {
+    elScore.textContent = 0;
+    elNivel.textContent = "Iniciante";
+    return;
+  }
 
   let saldo = 0, investido = 0, wins = 0;
 
@@ -169,23 +187,12 @@ function calcularScore() {
   if (score >= 70) nivel = "Avançado";
   else if (score >= 50) nivel = "Intermediário";
 
-  return { score: Math.round(score), nivel };
-}
-
-function atualizarScore() {
-  const elScore = document.getElementById("score");
-  const elNivel = document.getElementById("nivel");
-
-  if (!elScore || !elNivel) return;
-
-  const { score, nivel } = calcularScore();
-
-  elScore.textContent = score;
+  elScore.textContent = Math.round(score);
   elNivel.textContent = nivel;
 }
 
 // =====================
-// INSIGHTS (CARDS)
+// INSIGHTS (AGORA FUNCIONA 100%)
 // =====================
 function atualizarInsights() {
   const lista = document.getElementById("listaInsights");
@@ -194,6 +201,24 @@ function atualizarInsights() {
   if (!lista || !badge) return;
 
   lista.innerHTML = "";
+
+  // 🔒 BLOQUEIO PRO (PRIORIDADE TOTAL)
+  if (!usuarioPro) {
+    lista.innerHTML = `
+      <div class="insight-card lock">
+        <h3>🔒 Insights PRO</h3>
+        <p>Descubra onde você perde dinheiro nas apostas</p>
+
+        <button onclick="irParaPagamento()" class="btn-pro">
+          🔓 Desbloquear agora
+        </button>
+      </div>
+    `;
+    badge.textContent = "(1)";
+    return;
+  }
+
+  // 👇 só entra aqui se for PRO
   let total = 0;
 
   function card(t, d, s) {
@@ -221,39 +246,96 @@ function atualizarInsights() {
     total++;
   }
 
-  if (alta.length > apostas.length * 0.5) {
-    lista.appendChild(card("⚠️ Comportamento", "Muitas odds altas", "Mais de 50%"));
-    total++;
-  }
-
   badge.textContent = `(${total})`;
 }
 
 // =====================
-// FILTRO
+// EXPORTAR CSV
 // =====================
-const filtro = document.getElementById("filtroResultado");
-if (filtro) {
-  filtro.addEventListener("change", atualizarTabela);
+function exportarCSV() {
+  if (!usuarioPro) {
+    alert("🔒 Disponível apenas no plano PRO");
+    return;
+  }
+
+  const linhas = [["Valor", "Odd", "Resultado", "Lucro"]];
+
+  apostas.forEach(a => {
+    linhas.push([a.valor, a.odd, a.resultado, a.lucro]);
+  });
+
+  const csv = linhas.map(l => l.join(",")).join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "apostas.csv";
+  a.click();
 }
 
 // =====================
+// PAGAMENTO
+// =====================
+function irParaPagamento() {
+  alert("Pague via PIX e envie o comprovante no WhatsApp para liberar o PRO");
+  window.open("https://wa.me/19971295263");
+}
+
+// =====================
+// ATIVAR PRO
+// =====================
+window.ativarPro = function () {
+  alert(
+`🚀 PLANO PRO BetControll
+
+✔ Insights automáticos
+✔ Identifica onde você perde dinheiro
+✔ Exportação de dados
+✔ Análise de performance
+
+💰 Acesso vitalício: R$19,90
+
+Clique em OK para falar no WhatsApp e ativar`
+  );
+
+  window.open("https://wa.me/19971295263?text=Quero%20ativar%20o%20PRO%20do%20BetControll");
+};
+// =====================
 // ABAS
 // =====================
-document.querySelectorAll(".menu-item").forEach(item => {
-  item.addEventListener("click", () => {
-    document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
-    item.classList.add("active");
+function initAbas() {
+  document.querySelectorAll(".menu-item").forEach(item => {
+    item.addEventListener("click", () => {
 
-    const aba = item.dataset.aba;
+      // ativa menu
+      document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
 
-    document.querySelectorAll(".aba").forEach(sec => sec.classList.add("hidden"));
-    document.getElementById(aba).classList.remove("hidden");
+      const aba = item.getAttribute("data-aba");
+
+      // esconde todas
+      document.querySelectorAll(".aba").forEach(sec => {
+        sec.classList.add("hidden");
+      });
+
+      // mostra a clicada
+      document.getElementById(aba).classList.remove("hidden");
+    });
   });
-});
+}
+// =====================
+// INICIAR (CORRIGIDO)
+// =====================
+window.onload = function () {
+  initForm();
+  initAbas();
+  atualizarTudo();
+};
 
 // =====================
-// ATUALIZAR TUDO
+// UPDATE GERAL
 // =====================
 function atualizarTudo() {
   atualizarTabela();
@@ -262,8 +344,3 @@ function atualizarTudo() {
   atualizarInsights();
   atualizarScore();
 }
-
-// =====================
-// INICIAR
-// =====================
-atualizarTudo();
