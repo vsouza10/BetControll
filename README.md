@@ -17,7 +17,7 @@ Sistema web para controle de banca e análise de apostas esportivas.
 (Coloque imagem aqui)
 
 ## 🔗 Acesso
-https://seu-link-aqui.com
+https://lnkd.in/dRrTMZK2
 
 ## 📌 Objetivo
 Ajudar apostadores a tomarem decisões baseadas em dados.
