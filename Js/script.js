@@ -216,9 +216,13 @@ function atualizarInsights() {
         <h3>🔒 Insights PRO</h3>
         <p>Descubra onde você perde dinheiro nas apostas</p>
 
-        <button onclick="irParaPagamento()" class="btn-pro">
-          🔓 Desbloquear agora
-        </button>
+       <button onclick="irParaPagamento()" class="btn-pro">
+  💰 Comprar acesso
+</button>
+
+<button onclick="ativarPro()" class="btn-pro" style="margin-top:10px;">
+  🔑 Já comprei? Ativar PRO
+</button>
       </div>
     `;
     badge.textContent = "(1)";
@@ -293,22 +297,25 @@ function irParaPagamento() {
 // =====================
 // ATIVAR PRO
 // =====================
-window.ativarPro = function () {
-  alert(
-`🚀 PLANO PRO BetControll
+// =====================
+// ATIVAR PRO (CORRETO)
+// =====================
+function ativarPro() {
+  let codigo = prompt("Digite seu código PRO");
 
-✔ Insights automáticos
-✔ Identifica onde você perde dinheiro
-✔ Exportação de dados
-✔ Análise de performance
+  if (!codigo) return;
 
-💰 Acesso vitalício: R$19,90
+  if (codigo === "VIP123") {
+    localStorage.setItem("pro", "true");
+    alert("Plano PRO ativado!");
+    location.reload();
+  } else {
+    alert("Código inválido");
+  }
+}
 
-Clique em OK para falar no WhatsApp e ativar`
-  );
-
-  window.open("https://wa.me/19971295263?text=Quero%20ativar%20o%20PRO%20do%20BetControll");
-};
+// deixa global (pra funcionar no botão)
+window.ativarPro = ativarPro;
 // =====================
 // ABAS
 // =====================
